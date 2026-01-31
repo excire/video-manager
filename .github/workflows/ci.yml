@@ -58,7 +58,7 @@ jobs:
 
       - name: Run integration tests
         run: |
-          pip install httpx pytest
+          pip install -r backend/requirements-ci.txt
           API_BASE=http://localhost:8000 pytest backend/tests -m integration -v
 
       - name: Show logs on failure
