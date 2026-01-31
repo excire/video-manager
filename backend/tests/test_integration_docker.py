@@ -55,7 +55,7 @@ def test_scan_discovers_videos(api_ready):
 
 
 def test_videos_after_scan(api_ready):
-    time.sleep(3)  # Allow background thumbnail processing
+    time.sleep(5)  # Allow background thumbnail processing
     r = httpx.get(f"{API_BASE}/videos")
     assert r.status_code == 200
     videos = r.json()

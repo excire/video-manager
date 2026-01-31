@@ -41,7 +41,7 @@ jobs:
       - name: Create test video
         run: |
           mkdir -p integration-test-videos
-          ffmpeg -f lavfi -i "color=c=black:s=320x240:d=1" -pix_fmt yuv420p -y integration-test-videos/sample.mp4
+          ffmpeg -f lavfi -i "color=c=black:s=320x240:d=3" -pix_fmt yuv420p -y integration-test-videos/sample.mp4
 
       - name: Start Docker backend
         run: docker compose -f docker-compose.integration.yml up -d --build
