@@ -12,6 +12,7 @@ node_modules
 
 # Data / local
 data/
+integration-test-videos/
 *.db
 .env
 .env.local

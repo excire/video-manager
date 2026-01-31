@@ -50,4 +50,22 @@ GitHub Actionsでバックエンドのテストを自動実行します。
 
 1. このリポジトリをGitHubへpush
 2. GitHubの「Actions」でCIが有効化されていることを確認
-3. `push` / `pull_request` 時に `backend/tests` が自動実行されます
+3. `push` / `pull_request` 時に以下が自動実行されます:
+   - **ユニットテスト**: `pytest backend/tests`（モック使用）
+   - **統合テスト**: Dockerでバックエンドを起動し、実際のFFmpeg処理を含むAPIテスト
+
+### 統合テストのローカル実行（Linux / macOS）
+```bash
+# テスト用動画作成
+./scripts/create_test_video.sh
+
+# バックエンド起動
+docker compose -f docker-compose.integration.yml up -d --build
+
+# API起動待ち後にテスト実行
+pip install httpx pytest
+API_BASE=http://localhost:8000 pytest backend/tests -m integration -v
+
+# 停止
+docker compose -f docker-compose.integration.yml down
+```

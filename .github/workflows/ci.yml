@@ -22,4 +22,49 @@ jobs:
       - name: Run backend tests
         env:
           AI_TAGGING_ENABLED: "0"
-        run: pytest backend/tests
+        run: pytest backend/tests -m "not integration"
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Create test video
+        run: |
+          mkdir -p integration-test-videos
+          ffmpeg -f lavfi -i "color=c=black:s=320x240:d=1" -pix_fmt yuv420p -y integration-test-videos/sample.mp4
+
+      - name: Start Docker backend
+        run: docker compose -f docker-compose.integration.yml up -d --build
+
+      - name: Wait for API
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8000/settings/video-dir >/dev/null; then
+              echo "API ready"; break
+            fi
+            [ $i -eq 60 ] && exit 1
+            sleep 2
+          done
+
+      - name: Run integration tests
+        run: |
+          pip install httpx pytest
+          API_BASE=http://localhost:8000 pytest backend/tests -m integration -v
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose -f docker-compose.integration.yml logs
+
+      - name: Stop Docker
+        if: always()
+        run: docker compose -f docker-compose.integration.yml down

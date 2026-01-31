@@ -1,0 +1,18 @@
+# Integration test: backend only, lightweight image, test videos
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.ci
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./integration-test-videos:/videos:ro
+      - integration-data:/backend/data
+    environment:
+      - PYTHONUNBUFFERED=1
+      - AI_TAGGING_ENABLED=0
+      - DATABASE_URL=sqlite:///./data/videos.db
+
+volumes:
+  integration-data:
